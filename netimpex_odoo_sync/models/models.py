@@ -8,11 +8,9 @@ import json
 import datetime
 from odoo.exceptions import Warning
 from odoo import models, fields, api, tools
-
-
 import logging
+
 logger=logging.getLogger()
-# logger.setLevel(logging.DEBUG)
 
 IMAGE_BASE_URL = 'http://www.esbe.netimpex.com/'
 ARTICLE_MASTER_URL = '/ArticleMaster'
@@ -85,7 +83,8 @@ class Product(models.Model):
         get_product_url = NETIMPEX_API_BASE_URL+ARTICLE_MASTER_URL
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
-        for index, product in enumerate(product_data):
+        logger.info("-----------------------total products "+str(len(product_data)))
+        for index, product in enumerate(product_data[:20]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
@@ -96,6 +95,8 @@ class Product(models.Model):
                 image_b64data = base64.b64encode(image_data)
             else:
                 pass
+
+            logger.info("------------------product name %s ---- %s" % (str(index), product.get('Article_name')))
             vals = {
              'description_sale': product.get('article_description'),
              'name': product.get('Article_name'),
@@ -170,6 +171,10 @@ class Product(models.Model):
             return super(Product, self).create(vals)
         except IOError:
             pass
+        except ValueError:
+            logger.info("------------------------value error")
+            vals.pop('image_medium')
+            return super(Product, self).create(vals)
         return
 
 
