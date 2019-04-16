@@ -10,6 +10,10 @@ from odoo.exceptions import Warning
 from odoo import models, fields, api, tools
 
 
+import logging
+logger=logging.getLogger()
+# logger.setLevel(logging.DEBUG)
+
 IMAGE_BASE_URL = 'http://www.esbe.netimpex.com/'
 ARTICLE_MASTER_URL = '/ArticleMaster'
 ARTICLE_PRICELIST_URL = '/ArticlePricelist'
@@ -18,9 +22,9 @@ NETIMPEX_API_BASE_URL = 'http://www.esbeapi.netimpex.com:89/api'
 
 class Product(models.Model):
     """docstring for Product"""
-    _inherit = ['product.template']
+    _inherit = ['product.product']
 
-    netimpex_product_id = fields.Integer('Netimpex Article Id', required=True)
+    netimpex_product_id = fields.Integer('Netimpex Article Id', required=False)
     agency_code_id = fields.Char('Agency Code')
     article_width_id = fields.Char('Width')
     article_height_id = fields.Char('Height')
@@ -35,11 +39,11 @@ class Product(models.Model):
         """
         get_pricelist_url = NETIMPEX_API_BASE_URL+ARTICLE_PRICELIST_URL
         get_pricelist_response = requests.get(get_pricelist_url)
-        pricelist_data = get_pricelist_response.json()  
+        pricelist_data = get_pricelist_response.json()
   
         for index, pricelist in enumerate(pricelist_data):
             art_id = pricelist.get('Article_id')
-            product_id = self.env['product.template'].search([('netimpex_product_id', '=', art_id)])
+            product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             pricelist_id = pricelist.get('price_id')
             check_pricelist = self.env['product.pricelist.lines'].search([('netimpex_pricelist_id','=', pricelist_id)])
             supplier = self.env['res.partner'].search([('vendor_cid','=',pricelist.get('supplier_id'))])
@@ -66,8 +70,10 @@ class Product(models.Model):
                     'netimpex_pricelist_id':pricelist.get('price_id'),
                     }
                 if check_pricelist:
+                    logger.info("updating new pricelist")
                     check_pricelist.write(vals)
                 else:
+                    logger.info("Creating new pricelist")
                     pricelist_line = self.env['product.pricelist.lines'].create(vals)
                     
         return
@@ -81,7 +87,7 @@ class Product(models.Model):
         product_data = get_product_response.json()
         for index, product in enumerate(product_data):
             art_id = product.get('article_id')
-            product_id = self.env['product.template'].search([('netimpex_product_id', '=', art_id)])
+            product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
             date = TimestampUtc.split('T')[0]
             if product['picture']:
@@ -169,12 +175,19 @@ class Product(models.Model):
 
     @api.model
     def get_products_from_netimpex(self):
+        print ("--------------------start cron")
         #Create Suppliers
+        logger.info("Creating partners")
         self.create_partners()
-        #Create Products 
+        logger.info("Partners created")
+        #Create Products
+        logger.info("Creating products")
         self.create_products()
+        logger.info("Products created")
         #Create and Update Pricelist for Products
+        logger.info("Creating pricelist")
         self.create_pricelist()
+        logger.info("pricelist created")
         return
         
       
