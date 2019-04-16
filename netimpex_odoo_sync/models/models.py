@@ -84,7 +84,7 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        for index, product in enumerate(product_data):
+        for index, product in enumerate(product_data[1045:]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
@@ -171,8 +171,8 @@ class Product(models.Model):
             return super(Product, self).create(vals)
         except IOError:
             pass
-        except ValueError:
-            logger.info("------------------------value error")
+        except Exception:
+            logger.info("------------------------ Exception")
             vals.pop('image_medium')
             return super(Product, self).create(vals)
         return
