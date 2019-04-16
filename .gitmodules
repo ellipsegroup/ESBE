@@ -1,0 +1,4 @@
+[submodule "ellipsegroup/ESBE"]
+	path = ellipsegroup/ESBE
+	url = git@github.com:ellipsegroup/ESBE.git
+	branch = TEST_API_IMPORT
