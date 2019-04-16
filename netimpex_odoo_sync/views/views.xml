@@ -1,0 +1,72 @@
+<odoo>
+  <data>
+
+        <record id = "product_template_view_inherit" model="ir.ui.view">
+            <field name="name">product.template.netimpex</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[1]/group" position="inside">
+                    <group>
+                        <field name="netimpex_product_id"/>
+                        <field name="agency_code_id"/>
+                        <field name="article_create_date"/>
+                    </group>
+                    <group>
+                        <field name="article_width_id"/>
+                        <field name="article_height_id"/>
+                        <field name="article_length_id"/>
+                        <field name="article_hsn_code"/>
+                    </group>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Pricelist">
+                        <field name="pricelist_line" mode="tree">
+                            <tree string="Pricelist Lines" editable="bottom">
+                                <field name="unitprice"/>
+                                <field name="unitprice_currency"/>
+                                <field name="unitprice_place"/>
+                                <field name="packing_length"/>
+                                <field name="packing_width"/>
+                                <field name="packing_height"/>
+                                <field name="packing_weight"/>
+                                <field name="pieces_pr_packing"/>
+                                <field name="date"/>
+                                <field name="status"/>
+                                <field name="agency_code"/>
+                            </tree>                                
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+         <record id="inherit_view_vendor_netimpex" model="ir.ui.view">
+            <field name="name">vendor_netimpex_details</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                  <xpath expr="//page[1]" position="inside">
+                    <group >
+                        <group>
+                            <field name="vendor_cid"/>
+                            <field name="vendor_discout"/>
+                            <field name="vendor_company_code"/>
+                            <field name="vendor_bank_name"/>
+                            <field name="vendor_discout"/>
+                            <field name="vendor_registration_date"/>
+                        </group>
+                        <group>
+                            <field name="vendor_account_number"/>
+                            <field name="vendor_bic"/>
+                            <field name="vendor_vat"/>
+                            <field name="vendor_payment_term"/>
+                            <field name="vendor_currency"/>
+                            <field name="no_of_users"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+  </data>
+</odoo>
