@@ -84,7 +84,7 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        for index, product in enumerate(product_data[1045:]):
+        for index, product in enumerate(product_data):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
@@ -100,7 +100,7 @@ class Product(models.Model):
             vals = {
              'description_sale': product.get('article_description'),
              'name': product.get('Article_name'),
-             'image_medium':image_b64data or "",
+             # 'image_medium':image_b64data or "",
              'netimpex_product_id' : product.get('article_id'),
              'default_code' : product.get('refrence_no'),
              'agency_code_id' : product.get('agency_code'),
@@ -164,18 +164,18 @@ class Product(models.Model):
 
 
 
-    @api.model
-    def create(self, vals):
-        try:
-            tools.image_resize_images(vals)
-            return super(Product, self).create(vals)
-        except IOError:
-            pass
-        except Exception:
-            logger.info("------------------------ Exception")
-            vals.pop('image_medium')
-            return super(Product, self).create(vals)
-        return
+    # @api.model
+    # def create(self, vals):
+    #     try:
+    #         tools.image_resize_images(vals)
+    #         return super(Product, self).create(vals)
+    #     except IOError:
+    #         pass
+    #     except Exception:
+    #         logger.info("------------------------Exception")
+    #         vals.pop('image_medium')
+    #         return super(Product, self).create(vals)
+    #     return
 
 
     @api.model
@@ -194,5 +194,3 @@ class Product(models.Model):
         self.create_pricelist()
         logger.info("pricelist created")
         return
-        
-      
