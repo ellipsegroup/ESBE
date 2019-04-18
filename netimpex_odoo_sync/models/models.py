@@ -180,7 +180,7 @@ class Product(models.Model):
 
     @api.model
     def get_products_from_netimpex(self):
-        print ("--------------------start cron")
+        print ("--------------------start cron for data import")
         #Create Suppliers
         logger.info("Creating partners")
         self.create_partners()
