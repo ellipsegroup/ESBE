@@ -84,7 +84,7 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        logger.info("-----------------------import first 1000 - 1500")
+        logger.info("-----------------------import first - 1000 - 1500")
         
         for index, product in enumerate(product_data[1000:1500]):
             art_id = product.get('article_id')
