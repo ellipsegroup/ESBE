@@ -101,7 +101,7 @@ class Product(models.Model):
             vals = {
              'description_sale': product.get('article_description'),
              'name': product.get('Article_name'),
-             # 'image_medium':image_b64data or "",
+             'image_medium':image_b64data or "",
              'netimpex_product_id' : product.get('article_id'),
              'default_code' : product.get('refrence_no'),
              'agency_code_id' : product.get('agency_code'),
