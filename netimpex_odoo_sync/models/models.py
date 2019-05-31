@@ -84,9 +84,9 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        logger.info("-----------------------import first 500 ")
+        logger.info("-----------------------import first 500 - 100")
         
-        for index, product in enumerate(product_data[:500]):
+        for index, product in enumerate(product_data[500:1000]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
