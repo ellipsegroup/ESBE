@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="base_netimpex_url" model="ir.config_parameter">
+            <field name="key">netimpex_odoo_sync.api_url</field>
+            <field name="value">http://www.forward.netimpex.com/</field>
+        </record>
+
+        <record id="ir_cron_scheduler_demo_action" model="ir.cron">
+            <field name="name">Netimpex Synchronization Scheduler</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">120</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field eval="True" name="doall"/>
+            <field name="model_id" ref="product.model_product_product"/>
+            <field name="state">code</field>
+            <field name="code">model.get_products_from_netimpex()</field>
+        </record>
+    </data>
+</odoo>
