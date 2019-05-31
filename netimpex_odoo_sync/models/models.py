@@ -84,6 +84,7 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
+        logger.info("-----------------------import first 500 ")
         
         for index, product in enumerate(product_data[:500]):
             art_id = product.get('article_id')
@@ -110,11 +111,14 @@ class Product(models.Model):
              'article_length_id' : product.get('Article_length'),
              'article_create_date' : date,
              'article_hsn_code' : product.get('hscode'),
+             'x_studio_hs_code' : product.get('hscode'),
             }
+
             if not product_id:
                 self.env['product.product'].create(vals)
             else:
                 product_id.write(vals)
+                
         
         return
 
