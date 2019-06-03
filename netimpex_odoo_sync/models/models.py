@@ -111,7 +111,7 @@ class Product(models.Model):
              'article_length_id' : product.get('Article_length'),
              'article_create_date' : date,
              'article_hsn_code' : product.get('hscode'),
-             'x_studio_hs_code' : product.get('hscode'),
+             # 'x_studio_hs_code' : product.get('hscode'),
             }
 
             if not product_id:
@@ -199,3 +199,18 @@ class Product(models.Model):
         self.create_pricelist()
         logger.info("pricelist created")
         return
+
+
+    @api.model
+    def remove_redundant_article(self):
+
+        all_products = self.env["product.product"].search([])[:50]
+        duplicate_products_name = []
+
+        for each_product in all_products:
+            duplicate_products = self.env["product.product"].search([('name', '=', each_product.name)])
+
+            if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
+                duplicate_products_name.append(duplicate_products[0].name)
+                for each_duplicate_product in duplicate_products[1:]:
+                    each_duplicate_product.write({'active':False})
