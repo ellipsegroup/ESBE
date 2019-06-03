@@ -204,6 +204,8 @@ class Product(models.Model):
     @api.model
     def remove_redundant_article(self):
 
+        print ("--------------------------------------------------inside remove redundant article cron")
+
         all_products = self.env["product.product"].search([])[-50:]
 
         duplicate_products_name = []
