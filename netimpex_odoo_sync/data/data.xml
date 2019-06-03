@@ -17,7 +17,7 @@
             <field name="code">model.get_products_from_netimpex()</field>
         </record>
 
-        <record id="ir_cron_remove_red_article" model="ir.cron">
+        <!-- <record id="ir_cron_remove_red_article" model="ir.cron">
             <field name="name">Remove redundant article</field>
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
@@ -27,6 +27,6 @@
             <field name="model_id" ref="product.model_product_product"/>
             <field name="state">code</field>
             <field name="code">model.remove_redundant_article()</field>
-        </record>
+        </record> -->
     </data>
 </odoo>

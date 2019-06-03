@@ -201,7 +201,7 @@ class Product(models.Model):
         return
 
 
-    @api.model
+
     def remove_redundant_article(self):
 
         print ("--------------------------------------------------inside remove redundant article cron")

@@ -38,6 +38,9 @@
                         </field>
                     </page>
                 </xpath>
+                <xpath expr="//header" position="inside">
+                    <button name="remove_redundant_article" type="object" string="Remove redundant product"/>
+                </xpath>
             </field>
         </record>
 
@@ -68,5 +71,12 @@
                 </xpath>
             </field>
         </record>
+
+
+
+
+
+
+
   </data>
 </odoo>
