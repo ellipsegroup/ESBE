@@ -204,7 +204,7 @@ class Product(models.Model):
     @api.model
     def remove_redundant_article(self):
 
-        all_products = self.env["product.product"].search([])[:50]
+        all_products = self.env["product.product"].search([])[-50:]
 
         duplicate_products_name = []
 
