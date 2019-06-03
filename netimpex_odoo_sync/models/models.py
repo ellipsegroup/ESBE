@@ -205,12 +205,17 @@ class Product(models.Model):
     def remove_redundant_article(self):
 
         all_products = self.env["product.product"].search([])[:50]
+
         duplicate_products_name = []
 
         for each_product in all_products:
+            print ("==========================product name %s" % each_product.name)
             duplicate_products = self.env["product.product"].search([('name', '=', each_product.name)])
 
             if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
                 duplicate_products_name.append(duplicate_products[0].name)
                 for each_duplicate_product in duplicate_products[1:]:
                     each_duplicate_product.write({'active':False})
+
+
+        print ("=============================%s" % duplicate_products_name)
