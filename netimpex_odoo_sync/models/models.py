@@ -208,7 +208,7 @@ class ProductTemplate(models.Model):
 
         logger.info("--------------------------------------------------inside remove redundant article cron")
 
-        all_products = self.env["product.template"].search([])[-50:]
+        all_products = self.env["product.template"].search([])
 
         duplicate_products_name = []
 
