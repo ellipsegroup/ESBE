@@ -84,9 +84,9 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        logger.info("-----------------------import first - 1000 - 1200")
+        logger.info("-----------------------import first - 0 - 500")
         
-        for index, product in enumerate(product_data[1000:1200]):
+        for index, product in enumerate(product_data[0:500]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
@@ -169,18 +169,14 @@ class Product(models.Model):
 
 
 
-    # @api.model
-    # def create(self, vals):
-    #     try:
-    #         tools.image_resize_images(vals)
-    #         return super(Product, self).create(vals)
-    #     except IOError:
-    #         pass
-    #     except Exception:
-    #         logger.info("------------------------Exception")
-    #         vals.pop('image_medium')
-    #         return super(Product, self).create(vals)
-    #     return
+    @api.model
+    def create(self, vals):
+        try:
+            tools.image_resize_images(vals)
+            return super(Product, self).create(vals)
+        except IOError:
+            pass
+        return
 
 
     @api.model
@@ -200,26 +196,26 @@ class Product(models.Model):
         logger.info("pricelist created")
         return
 
-class ProductTemplate(models.Model):
-    _inherit = ['product.template']
+# class ProductTemplate(models.Model):
+#     _inherit = ['product.template']
 
 
-    def remove_redundant_article(self):
+#     def remove_redundant_article(self):
 
-        logger.info("--------------------------------------------------inside remove redundant article cron")
+#         logger.info("--------------------------------------------------inside remove redundant article cron")
 
-        all_products = self.env["product.template"].search([])
+#         all_products = self.env["product.template"].search([])
 
-        duplicate_products_name = []
+#         duplicate_products_name = []
 
-        for each_product in all_products:
-            logger.info("==========================product name %s" % each_product.name)
-            duplicate_products = self.env["product.template"].search([('name', '=', each_product.name)])
+#         for each_product in all_products:
+#             logger.info("==========================product name %s" % each_product.name)
+#             duplicate_products = self.env["product.template"].search([('name', '=', each_product.name)])
 
-            if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
-                duplicate_products_name.append(duplicate_products[0].name)
-                for each_duplicate_product in duplicate_products[1:]:
-                    each_duplicate_product.write({'active':False})
+#             if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
+#                 duplicate_products_name.append(duplicate_products[0].name)
+#                 for each_duplicate_product in duplicate_products[1:]:
+#                     each_duplicate_product.write({'active':False})
 
 
-        logger.info("=============================%s" % duplicate_products_name)
+#         logger.info("=============================%s" % duplicate_products_name)
