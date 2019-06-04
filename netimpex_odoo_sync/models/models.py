@@ -196,26 +196,26 @@ class Product(models.Model):
         logger.info("pricelist created")
         return
 
-# class ProductTemplate(models.Model):
-#     _inherit = ['product.template']
+class ProductTemplate(models.Model):
+    _inherit = ['product.template']
 
 
-#     def remove_redundant_article(self):
+    def remove_redundant_article(self):
 
-#         logger.info("--------------------------------------------------inside remove redundant article cron")
+        logger.info("--------------------------------------------------inside remove redundant article cron")
 
-#         all_products = self.env["product.template"].search([])
+        all_products = self.env["product.template"].search([])
 
-#         duplicate_products_name = []
+        duplicate_products_name = []
 
-#         for each_product in all_products:
-#             logger.info("==========================product name %s" % each_product.name)
-#             duplicate_products = self.env["product.template"].search([('name', '=', each_product.name)])
+        for each_product in all_products:
+            logger.info("==========================product name %s" % each_product.name)
+            duplicate_products = self.env["product.template"].search([('name', '=', each_product.name)])
 
-#             if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
-#                 duplicate_products_name.append(duplicate_products[0].name)
-#                 for each_duplicate_product in duplicate_products[1:]:
-#                     each_duplicate_product.write({'active':False})
+            if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
+                duplicate_products_name.append(duplicate_products[0].name)
+                for each_duplicate_product in duplicate_products[1:]:
+                    each_duplicate_product.write({'active':False})
 
 
-#         logger.info("=============================%s" % duplicate_products_name)
+        logger.info("=============================%s" % duplicate_products_name)
