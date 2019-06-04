@@ -200,19 +200,21 @@ class Product(models.Model):
         logger.info("pricelist created")
         return
 
+class ProductTemplate(models.Model):
+    _inherit = ['product.template']
 
 
     def remove_redundant_article(self):
 
-        print ("--------------------------------------------------inside remove redundant article cron")
+        logger.info("--------------------------------------------------inside remove redundant article cron")
 
-        all_products = self.env["product.product"].search([])[-50:]
+        all_products = self.env["product.template"].search([])[-50:]
 
         duplicate_products_name = []
 
         for each_product in all_products:
-            print ("==========================product name %s" % each_product.name)
-            duplicate_products = self.env["product.product"].search([('name', '=', each_product.name)])
+            logger.info("==========================product name %s" % each_product.name)
+            duplicate_products = self.env["product.template"].search([('name', '=', each_product.name)])
 
             if len(duplicate_products)>1 and duplicate_products[0].name not in duplicate_products_name:
                 duplicate_products_name.append(duplicate_products[0].name)
@@ -220,4 +222,4 @@ class Product(models.Model):
                     each_duplicate_product.write({'active':False})
 
 
-        print ("=============================%s" % duplicate_products_name)
+        logger.info("=============================%s" % duplicate_products_name)
