@@ -84,9 +84,9 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        logger.info("-----------------------import - 1000 - 1500")
+        logger.info("-----------------------import - 1100 - 1500")
         
-        for index, product in enumerate(product_data[1000:1500]):
+        for index, product in enumerate(product_data[1100:1500]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
@@ -175,6 +175,8 @@ class Product(models.Model):
             tools.image_resize_images(vals)
             return super(Product, self).create(vals)
         except IOError:
+            pass
+        except Exception:
             pass
         return
 
