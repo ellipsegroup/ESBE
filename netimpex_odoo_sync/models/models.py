@@ -76,6 +76,18 @@ class Product(models.Model):
                     
         return
 
+    def get_image_size(self, image_url):
+        import urllib.request
+        from PIL import Image
+        try:
+            image = Image.open(urllib.request.urlopen(image_url))
+            width, height = image.size
+            return width*height
+        except Exception as e:
+            pass
+        
+        return 0
+
     def create_products(self):
         """
         Create Products 
@@ -91,12 +103,18 @@ class Product(models.Model):
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
             date = TimestampUtc.split('T')[0]
+            image_b64data = ""
             if product['picture']:
                 product_image_url = IMAGE_BASE_URL+product['picture']
-                image_data = requests.get(product_image_url).content
-                image_b64data = base64.b64encode(image_data)
+                image_size = self.get_image_size(product_image_url)
+
+                logger.info("-----------------------Image Size : "+str(image_size))
+                if image_size != 0 and image_size < 178956970:
+                    image_data = requests.get(product_image_url).content
+                    image_b64data = base64.b64encode(image_data)
             else:
                 pass
+
 
             logger.info("------------------product name %s ---- %s" % (str(index), product.get('Article_name')))
             vals = {
@@ -111,7 +129,7 @@ class Product(models.Model):
              'article_length_id' : product.get('Article_length'),
              'article_create_date' : date,
              'article_hsn_code' : product.get('hscode'),
-             # 'x_studio_hs_code' : product.get('hscode'),
+             'x_studio_hs_code' : product.get('hscode'),
             }
 
             if not product_id:
