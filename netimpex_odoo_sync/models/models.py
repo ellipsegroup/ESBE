@@ -76,18 +76,6 @@ class Product(models.Model):
                     
         return
 
-    def get_image_size(self, image_url):
-        import urllib.request
-        from PIL import Image
-        try:
-            image = Image.open(urllib.request.urlopen(image_url))
-            width, height = image.size
-            return width*height
-        except Exception as e:
-            pass
-        
-        return 0
-
     def create_products(self):
         """
         Create Products 
@@ -96,25 +84,19 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        logger.info("-----------------------import - 1000 - 1100")
+        logger.info("-----------------------import - 1100 - 1200")
         
-        for index, product in enumerate(product_data[1000:1100]):
+        for index, product in enumerate(product_data[1100:1200]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
             date = TimestampUtc.split('T')[0]
-            image_b64data = ""
             if product['picture']:
                 product_image_url = IMAGE_BASE_URL+product['picture']
-                image_size = self.get_image_size(product_image_url)
-
-                logger.info("-----------------------Image Size : "+str(image_size))
-                if image_size != 0 and image_size < 178956970:
-                    image_data = requests.get(product_image_url).content
-                    image_b64data = base64.b64encode(image_data)
+                image_data = requests.get(product_image_url).content
+                image_b64data = base64.b64encode(image_data)
             else:
                 pass
-
 
             logger.info("------------------product name %s ---- %s" % (str(index), product.get('Article_name')))
             vals = {
@@ -187,16 +169,16 @@ class Product(models.Model):
 
 
 
-    # @api.model
-    # def create(self, vals):
-    #     try:
-    #         tools.image_resize_images(vals)
-    #         return super(Product, self).create(vals)
-    #     except IOError:
-    #         pass
-    #     except Exception:
-    #         pass
-    #     return
+    @api.model
+    def create(self, vals):
+        try:
+            tools.image_resize_images(vals)
+            return super(Product, self).create(vals)
+        except IOError:
+            pass
+        except Exception:
+            pass
+        return
 
 
     @api.model
