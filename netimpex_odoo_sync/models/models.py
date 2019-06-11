@@ -38,6 +38,8 @@ class Product(models.Model):
         get_pricelist_url = NETIMPEX_API_BASE_URL+ARTICLE_PRICELIST_URL
         get_pricelist_response = requests.get(get_pricelist_url)
         pricelist_data = get_pricelist_response.json()
+
+        # import pdb; pdb.set_trace()
   
         for index, pricelist in enumerate(pricelist_data):
             art_id = pricelist.get('Article_id')
@@ -45,6 +47,8 @@ class Product(models.Model):
             pricelist_id = pricelist.get('price_id')
             check_pricelist = self.env['product.pricelist.lines'].search([('netimpex_pricelist_id','=', pricelist_id)])
             supplier = self.env['res.partner'].search([('vendor_cid','=',pricelist.get('supplier_id'))])
+
+            print ("----------------------------------------------%s", pricelist.get('unitprice_currency'))
             supplier_id = None
             if supplier:
                 supplier_id = supplier[0].id
@@ -73,8 +77,27 @@ class Product(models.Model):
                 else:
                     logger.info("Creating new pricelist")
                     pricelist_line = self.env['product.pricelist.lines'].create(vals)
+
+
+                product_id.product_tmpl_id.write({
+                    'x_studio_carton_type': pricelist.get('Packing_type'), 
+                    'x_studio_carton_l': pricelist.get('Packing_length'), 
+                    'x_studio_carton_width': pricelist.get('Packing_width'), 
+                    'x_studio_carton_height': pricelist.get('Packing_height'), 
+                    'x_studio_carton_weight': pricelist.get('Packing_weight'), 
+                    'x_studio_pieces_per_carton': pricelist.get('Pieces_pr_Packing'), 
+                    })
                     
         return
+
+    def get_or_create_product_category(self, product_category):
+         
+        article_category = self.env['product.category'].search([('name', '=', product_category)])
+        if not article_category:
+            article_category = self.env['product.category'].create({'name':product_category})
+            return article_category.id
+
+        return article_category[0].id
 
     def create_products(self):
         """
@@ -99,6 +122,7 @@ class Product(models.Model):
                 pass
 
             logger.info("------------------product name %s ---- %s" % (str(index), product.get('Article_name')))
+
             vals = {
              'description_sale': product.get('article_description'),
              'name': product.get('Article_name'),
@@ -111,14 +135,28 @@ class Product(models.Model):
              'article_length_id' : product.get('Article_length'),
              'article_create_date' : date,
              'article_hsn_code' : product.get('hscode'),
-             'x_studio_hs_code' : product.get('hscode'),
+             'description':  product.get('article_description')
             }
 
+            product_category = product.get('Article_category')
+            if product_category : 
+                vals['categ_id'] = self.get_or_create_product_category(product_category)
+
+
             if not product_id:
-                self.env['product.product'].create(vals)
+                product_id = self.env['product.product'].create(vals)
             else:
                 product_id.write(vals)
+
+            product_id.product_tmpl_id.write({
+                'x_studio_hs_code' : product.get('hscode'),
+                'x_studio_article_length': product.get('Article_length'),
+                'x_studio_article_height': product.get('Article_height'),
+                'x_studio_article_weight': product.get('Article_weight'),
+                'x_studio_article_width': product.get('Article_width'),
+                })
                 
+            # import pdb; pdb.set_trace()
         
         return
 
