@@ -39,7 +39,6 @@ class Product(models.Model):
         get_pricelist_response = requests.get(get_pricelist_url)
         pricelist_data = get_pricelist_response.json()
 
-        # import pdb; pdb.set_trace()
   
         for index, pricelist in enumerate(pricelist_data):
             art_id = pricelist.get('Article_id')
@@ -48,10 +47,12 @@ class Product(models.Model):
             check_pricelist = self.env['product.pricelist.lines'].search([('netimpex_pricelist_id','=', pricelist_id)])
             supplier = self.env['res.partner'].search([('vendor_cid','=',pricelist.get('supplier_id'))])
 
-            print ("----------------------------------------------%s", pricelist.get('unitprice_currency'))
+            logger.info("----------------------------------------------%s", pricelist.get('unitprice_currency'))
             supplier_id = None
+            supplier_name = ""
             if supplier:
                 supplier_id = supplier[0].id
+                supplier_name = supplier[0].name
             if product_id:
                 vals = {
                     'pieces_pr_packing': pricelist.get('Pieces_pr_Packing'), 
@@ -85,7 +86,10 @@ class Product(models.Model):
                     'x_studio_carton_width': pricelist.get('Packing_width'), 
                     'x_studio_carton_height': pricelist.get('Packing_height'), 
                     'x_studio_carton_weight': pricelist.get('Packing_weight'), 
-                    'x_studio_pieces_per_carton': pricelist.get('Pieces_pr_Packing'), 
+                    'x_studio_pieces_per_carton': pricelist.get('Pieces_pr_Packing'),
+                    'x_studio_buying_price_netimpex':pricelist.get('unitprice'),
+                    'x_studio_buying_currency_netimpex':pricelist.get('unitprice_currency'),
+                    'x_studio_supplier_netimpex' : supplier_name,
                     })
                     
         return
@@ -107,9 +111,9 @@ class Product(models.Model):
         get_product_response = requests.get(get_product_url)
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
-        logger.info("-----------------------import - 0 - 1")
+        logger.info("-----------------------import - 0 - 10")
         
-        for index, product in enumerate(product_data[0:1]):
+        for index, product in enumerate(product_data[0:10]):
             art_id = product.get('article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
             TimestampUtc = product['article_create_date']
@@ -155,8 +159,6 @@ class Product(models.Model):
                 'x_studio_article_weight': product.get('Article_weight'),
                 'x_studio_article_width': product.get('Article_width'),
                 })
-                
-            # import pdb; pdb.set_trace()
         
         return
 
