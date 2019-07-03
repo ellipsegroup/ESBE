@@ -38,8 +38,7 @@ class Product(models.Model):
         get_pricelist_url = NETIMPEX_API_BASE_URL+ARTICLE_PRICELIST_URL
         get_pricelist_response = requests.get(get_pricelist_url)
         pricelist_data = get_pricelist_response.json()
-
-  
+        
         for index, pricelist in enumerate(pricelist_data):
             art_id = pricelist.get('Article_id')
             product_id = self.env['product.product'].search([('netimpex_product_id', '=', art_id)])
@@ -162,6 +161,27 @@ class Product(models.Model):
         
         return
 
+    def get_delivery_dict(self, partner):
+        del_country = self.env['res.country'].search([('code', '=',partner['delivery_country'])])
+        del_country_id = False
+        if del_country:
+            del_country_id = del_country[0].id
+
+        delivery_vals = {
+            'type':'delivery', 
+            'street': partner.get('delivery_Address'),
+            'street2': partner.get('delivery_streetname'),
+            'city': partner.get('delivery_city'),
+            'zip': partner.get('delivery_zip_code'),
+            'country_id': del_country_id,
+            'name': partner.get('delivery_ContactPerson'),
+            'email': partner.get('delivery_Emailid'),
+            'phone': partner.get('delivery_Phoneno'),
+        }
+
+        return delivery_vals
+
+
     def create_partners(self):
         """
         Create Products 
@@ -170,8 +190,11 @@ class Product(models.Model):
 
         get_partner_response = requests.get(get_partner_url)
         partner_data = get_partner_response.json()
-
+        
+        logger.info("-----------------------total partners "+str(len(partner_data)))
         for index, partner in enumerate(partner_data):
+
+            logger.info(str(index)+"----------"+partner.get('company_name'))
             country = self.env['res.country'].search([('code', '=',partner['country'])])
             
             if country:
@@ -196,14 +219,33 @@ class Product(models.Model):
                 'vendor_discout': partner.get('Discount'),
                 'vendor_registration_date' : partner.get('Regis_date').split('T')[0] if partner.get('Regis_date') else None,
                 'no_of_users' : partner.get('No_of_users'),
-                'customer': False,
-                'supplier': True,
+                'company_type': 'company',
             }
 
+            comp_type = partner.get('cpy_type')
+            if comp_type and comp_type.lower()=='customer':
+                vals['customer'] = True
+                vals['supplier'] = False
+
+            if comp_type and comp_type.lower()=='supplier':
+                vals['supplier'] = True
+                vals['customer'] = False
+
             partner_cid = self.env['res.partner'].search([('vendor_cid', '=', partner['cid'])])
+
+            delivery_vals = self.get_delivery_dict(partner)
             if not partner_cid:
+                vals['child_ids'] = [(0, 0,  delivery_vals)] 
                 self.env['res.partner'].create(vals)
             else:
+                child_ids = partner_cid.child_ids.search([('parent_id', '=', partner_cid.id), ('street', '=', delivery_vals['street']), ('street2', '=', delivery_vals['street2']),])
+
+                if child_ids: 
+                    delivery_id = child_ids[0].id
+                    vals['child_ids'] = [(1, delivery_id, delivery_vals)]
+                else:
+                    vals['child_ids'] = [(0, 0,  delivery_vals)] 
+
                 partner_cid.write(vals)
         return
 
@@ -228,13 +270,20 @@ class Product(models.Model):
         logger.info("Creating partners")
         self.create_partners()
         logger.info("Partners created")
+
+        ############################################################################
+        #Commented blow code to bypass import product and price list data into odoo 
+        #in order to update only partner data it should be uncommented after complete
+        # this task
+        ############################################################################
+
         #Create Products
-        logger.info("Creating products")
-        self.create_products()
-        logger.info("Products created")
+        # logger.info("Creating products")
+        # self.create_products() 
+        # logger.info("Products created")
         #Create and Update Pricelist for Products
-        logger.info("Creating pricelist")
-        self.create_pricelist()
+        # logger.info("Creating pricelist")
+        # self.create_pricelist()
         logger.info("pricelist created")
         return
 
