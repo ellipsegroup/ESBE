@@ -111,6 +111,10 @@ class Product(models.Model):
         product_data = get_product_response.json()
         logger.info("-----------------------total products "+str(len(product_data)))
         logger.info("-----------------------import - 1500 - all")
+
+
+        # import pdb; pdb.set_trace()
+
         
         for index, product in enumerate(product_data[1500:]):
             art_id = product.get('article_id')
@@ -271,13 +275,8 @@ class Product(models.Model):
         self.create_partners()
         logger.info("Partners created")
 
-        ############################################################################
-        #Commented blow code to bypass import product and price list data into odoo 
-        #in order to update only partner data it should be uncommented after complete
-        # this task
-        ############################################################################
-
-        #Create Products
+        
+        # Create Products
         # logger.info("Creating products")
         # self.create_products() 
         # logger.info("Products created")
